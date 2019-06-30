@@ -101,53 +101,118 @@ namespace DemoDataTable
             //dt.Rows.Find():	9.4ms
 
             // 删除某一列
-            dt.Columns.Remove("Phi");
-            dt.Columns.RemoveAt(1);
+            dt.Columns.Remove("Id");
+            dt.Columns.RemoveAt(2);
+
+            // 根据多个字段排序
+            DataView dv = dt.DefaultView;
+            dv.Sort = "Theta ASC,Phi DESC";
+            DataTable dtSort = dv.ToTable();
+            DataTable2Csv(dtSort, @"C:\Users\17213\Desktop\dtGain.csv");
         }
         //导入CSV文件
         public static DataTable Csv2DataTable(string fileName)
         {
-            System.Data.DataTable dt = new System.Data.DataTable();
-            FileStream fs = new FileStream(fileName, System.IO.FileMode.Open, System.IO.FileAccess.Read);
-            StreamReader sr = new StreamReader(fileName, System.Text.Encoding.Default);
-            //记录每次读取的一行记录
-            string strLine = "";
-            //记录每行记录中的各字段内容
-            string[] aryLine;
-            //标示列数
-            int columnCount = 0;
-            //标示是否是读取的第一行
-            bool IsFirst = true;
-
-            //逐行读取CSV中的数据
-            while ((strLine = sr.ReadLine()) != null)
+            DataTable dt = new DataTable();
+            try
             {
-                aryLine = strLine.Split(',');
-                if (IsFirst == true)
-                {
-                    IsFirst = false;
-                    columnCount = aryLine.Length;
-                    //创建列,并命名字段名称
-                    for (int i = 0; i < columnCount; i++)
-                    {
-                        DataColumn dc = new DataColumn(aryLine[i]);
-                        dt.Columns.Add(dc);
-                    }
-                }
-                else
-                {
-                    DataRow dr = dt.NewRow();
-                    for (int j = 0; j < columnCount; j++)
-                    {
-                        dr[j] = aryLine[j];
-                    }
-                    dt.Rows.Add(dr);
-                }
-            }
+                FileStream fs = new FileStream(fileName, System.IO.FileMode.Open, System.IO.FileAccess.Read);
+                StreamReader sr = new StreamReader(fileName, System.Text.Encoding.Default);
+                //记录每次读取的一行记录
+                string strLine = "";
+                //记录每行记录中的各字段内容
+                string[] aryLine;
+                //标示列数
+                int columnCount = 0;
+                //标示是否是读取的第一行
+                bool IsFirst = true;
+                DataColumn dc;
 
-            sr.Close();
-            fs.Close();
+                //逐行读取CSV中的数据
+                while ((strLine = sr.ReadLine()) != null)
+                {
+                    aryLine = strLine.Split(',');
+                    if (IsFirst == true)
+                    {
+                        IsFirst = false;
+                        columnCount = aryLine.Length;
+                        //创建列,并命名字段名称
+                        for (int i = 0; i < columnCount; i++)
+                        {
+                            if(i < 3)
+                                dc = new DataColumn(aryLine[i], typeof(int));
+                            else
+                                dc = new DataColumn(aryLine[i], typeof(double));
+                            dt.Columns.Add(dc);
+                        }
+                    }
+                    else
+                    {
+                        DataRow dr = dt.NewRow();
+                        for (int j = 0; j < columnCount; j++)
+                        {
+                            dr[j] = aryLine[j];
+                        }
+                        dt.Rows.Add(dr);
+                    }
+                }
+
+                sr.Close();
+                fs.Close();
+            }
+            catch { }
             return dt;
+        }
+
+        public static void DataTable2Csv(DataTable dt, string fullPath)
+        {
+            try
+            {
+                var fi = new FileInfo(fullPath);
+                if (!fi.Directory.Exists)
+                {
+                    fi.Directory.Create();
+                }
+                var fs = new FileStream(fullPath, FileMode.Create, FileAccess.Write);
+                //StreamWriter sw = new StreamWriter(fs, System.Text.Encoding.Default);
+                var sw = new StreamWriter(fs, Encoding.UTF8);
+                var data = "";
+                //写出列名称
+                for (var i = 0; i < dt.Columns.Count; i++)
+                {
+                    data += dt.Columns[i].ColumnName;
+                    if (i < dt.Columns.Count - 1)
+                    {
+                        data += ",";
+                    }
+                }
+                sw.WriteLine(data);
+                //写出各行数据
+                for (var i = 0; i < dt.Rows.Count; i++)
+                {
+                    data = "";
+                    for (var j = 0; j < dt.Columns.Count; j++)
+                    {
+                        var str = dt.Rows[i][j].ToString();
+                        str = str.Replace("\"", "\"\""); //替换英文冒号 英文冒号需要换成两个冒号
+                        if (str.Contains(',') || str.Contains('"')
+                            || str.Contains('\r') || str.Contains('\n')) //含逗号 冒号 换行符的需要放到引号中
+                        {
+                            str = string.Format("\"{0}\"", str);
+                        }
+
+                        data += str;
+                        if (j < dt.Columns.Count - 1)
+                        {
+                            data += ",";
+                        }
+                    }
+                    sw.WriteLine(data);
+                }
+                sw.Close();
+                fs.Close();
+            }
+            catch { }
         }
     }
 }
