@@ -27,40 +27,82 @@ namespace DemoDataTable
             InitializeComponent();
             //string filepath = @"D:\00_data\01_WorkSpace\VisualStudio\WPF\TestDataTable\TestDataTable\Dipole_dB(GainTotal).csv";
             string filepath = @"..\..\..\Dipole_dB(GainTotal).csv";
-            DataRow[] dr;
+            DataRow[] dr1;
+            DataRow dr2;
+            DataRow[] dr3;
+            DataRow dr4;
             DataTable dt = new DataTable();
+            DateTime dt0;
+            DateTime dt1;
+            DateTime dt2;
+            DateTime dt3;
+            DateTime dt4;
+            DateTime dt5;
+            object[] objs;
+            object[] objs2;
+            DataColumn[] cols1;
+            DataColumn[] cols2;
 
-
-            DateTime dt1 = DateTime.Now;
+            // 0.记录开始时刻
+            dt0 = DateTime.Now;
             // 1.读取csv
             dt = Csv2DataTable(filepath);
-            DateTime dt2 = DateTime.Now;
-            // 2.用dt.Select();查询
-            dr = dt.Select("Phi=1 and Theta=1");
-            DateTime dt3 = DateTime.Now;
-            // 3.用dt.Rows.Find();查询
-            // 3.1.联合两个字段为一个主键
-            DataColumn[] cols = new DataColumn[] { dt.Columns["Phi"], dt.Columns["Theta"] };
-            dt.PrimaryKey = cols;
-            // 3.2.查询
-            object[] objs = new object[] { 1, 1 };
-            DataRow dr2 = dt.Rows.Find(objs);
-            DateTime dt4 = DateTime.Now;
+            dt1 = DateTime.Now;
+            // 2.dt.Select()查询单个字段
+            dr1 = dt.Select("Id=1");
+            dt2 = DateTime.Now;
+            // 3.dt.Rows.Find()查询单个字段
+            cols1 = new DataColumn[] { dt.Columns["Id"] };
+            dt.PrimaryKey = cols1;
+            objs = new object[] { 1 };
+            dr2 = dt.Rows.Find(objs);
+            dt3 = DateTime.Now;
+            // 4.dt.Select()查询多个字段
+            dr3 = dt.Select("Phi=1 and Theta=1");
+            dt4 = DateTime.Now;
+            // 5.dt.Rows.Find()查询多个字段
+            // 5.1.联合两个字段为一个主键
+            cols2 = new DataColumn[] { dt.Columns["Phi"], dt.Columns["Theta"] };
+            dt.PrimaryKey = cols2;
+            // 5.2.查询
+            objs2 = new object[] { 1, 1 };
+            dr4 = dt.Rows.Find(objs2);
+            dt5 = DateTime.Now;
 
-            double data = double.Parse(dr[0]["dB(GainTotal)"].ToString());
+            double data1 = double.Parse(dr1[0]["dB(GainTotal)"].ToString());
             double data2 = double.Parse(dr2["dB(GainTotal)"].ToString());
-            Console.WriteLine("data:\t{0:#.00}", data);
+            double data3 = double.Parse(dr3[0]["dB(GainTotal)"].ToString());
+            double data4 = double.Parse(dr4["dB(GainTotal)"].ToString());
+            Console.WriteLine("data:\t{0:#.00}", data1);
             Console.WriteLine("data2:\t{0:#.00}", data2);
+            Console.WriteLine("data:\t{0:#.00}", data3);
+            Console.WriteLine("data2:\t{0:#.00}", data4);
 
-            double secInterval21 = dt2.Subtract(dt1).TotalMilliseconds;
-            double secInterval32 = dt3.Subtract(dt2).TotalMilliseconds;
-            double secInterval43 = dt4.Subtract(dt3).TotalMilliseconds;
-            Console.WriteLine("Csv2DataTable():\t{0:#.0}ms", secInterval21);
-            Console.WriteLine("dt.Select():\t\t{0:#.0}ms", secInterval32);
-            Console.WriteLine("dt.Rows.Find():\t\t{0:#.0}ms", secInterval43);
-            //Csv2DataTable():  213.4315 ms
-            //dt.Select():      614.3553 ms
-            //dt.Rows.Find():   7.9794 ms
+            Console.WriteLine("csv文件读取到dataTable耗时");
+            Console.WriteLine("Csv2DataTable():\t{0:#.0}ms", dt1.Subtract(dt0).TotalMilliseconds);
+            Console.WriteLine("查询单个字段耗时");
+            Console.WriteLine("dt.Select():\t\t{0:#.0}ms", dt2.Subtract(dt1).TotalMilliseconds);
+            Console.WriteLine("dt.Rows.Find():\t\t{0:#.0}ms", dt3.Subtract(dt2).TotalMilliseconds);
+            Console.WriteLine("查询多个字段耗时");
+            Console.WriteLine("dt.Select():\t\t{0:#.0}ms", dt4.Subtract(dt3).TotalMilliseconds);
+            Console.WriteLine("dt.Rows.Find():\t\t{0:#.0}ms", dt5.Subtract(dt4).TotalMilliseconds);
+
+            //data: -64.59
+            //data2: -64.59
+            //data: -34.89
+            //data2: -34.89
+            //csv文件读取到dataTable耗时
+            //Csv2DataTable():	252.5ms
+            //查询单个字段耗时
+            //dt.Select():		527.2ms
+            //dt.Rows.Find():	4.5ms
+            //查询多个字段耗时
+            //dt.Select():		530.2ms
+            //dt.Rows.Find():	9.4ms
+
+            // 删除某一列
+            dt.Columns.Remove("Phi");
+            dt.Columns.RemoveAt(1);
         }
         //导入CSV文件
         public static DataTable Csv2DataTable(string fileName)
