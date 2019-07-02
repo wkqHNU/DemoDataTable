@@ -43,6 +43,7 @@ namespace DemoDataTable
             DataColumn[] cols1;
             DataColumn[] cols2;
 
+            // ------------------- 1.查询 -------------------
             // 0.记录开始时刻
             dt0 = DateTime.Now;
             // 1.读取csv
@@ -100,15 +101,26 @@ namespace DemoDataTable
             //dt.Select():		530.2ms
             //dt.Rows.Find():	9.4ms
 
-            // 删除某一列
+            // ------------------- 2.删除某一列 -------------------
             dt.Columns.Remove("Id");
             dt.Columns.RemoveAt(2);
 
-            // 根据多个字段排序
-            DataView dv = dt.DefaultView;
-            dv.Sort = "Theta ASC,Phi DESC";
-            DataTable dtSort = dv.ToTable();
-            DataTable2Csv(dtSort, @"C:\Users\17213\Desktop\dtGain.csv");
+            // ------------------- 3.根据多个字段排序 -------------------
+            //DataView dv = dt.DefaultView;
+            //dv.Sort = "Theta ASC,Phi DESC";
+            //DataTable dtSort = dv.ToTable();
+            //DataTable2Csv(dtSort, @"C:\Users\17213\Desktop\dtGain.csv");
+            dt.DefaultView.Sort = "Theta ASC,Phi DESC";
+            dt = dt.DefaultView.ToTable();
+            DataTable2Csv(dt, @"C:\Users\17213\Desktop\dtGain.csv");
+
+            // ------------------- 4.取某行某列 -------------------
+            double d = double.Parse(dt.Rows[0][3].ToString());
+
+            // ------------------- 5.遍历 -------------------
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+            }
         }
         //导入CSV文件
         public static DataTable Csv2DataTable(string fileName)
