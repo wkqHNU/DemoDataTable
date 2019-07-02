@@ -101,11 +101,7 @@ namespace DemoDataTable
             //dt.Select():		530.2ms
             //dt.Rows.Find():	9.4ms
 
-            // ------------------- 2.删除某一列 -------------------
-            dt.Columns.Remove("Id");
-            dt.Columns.RemoveAt(2);
-
-            // ------------------- 3.根据多个字段排序 -------------------
+            // ------------------- 2.根据多个字段排序 -------------------
             //DataView dv = dt.DefaultView;
             //dv.Sort = "Theta ASC,Phi DESC";
             //DataTable dtSort = dv.ToTable();
@@ -114,13 +110,38 @@ namespace DemoDataTable
             dt = dt.DefaultView.ToTable();
             DataTable2Csv(dt, @"C:\Users\17213\Desktop\dtGain.csv");
 
-            // ------------------- 4.取某行某列 -------------------
+            // ------------------- 3.取某行某列 -------------------
             double d = double.Parse(dt.Rows[0][3].ToString());
 
-            // ------------------- 5.遍历 -------------------
+            // ------------------- 4.遍历 -------------------
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {}
+            foreach (DataRow dr in dt.Rows)
+            { }
+
+            // ------------------- 5.取某一列 -------------------
+            // 5.1 List
+            dt0 = DateTime.Now;
+            List<int> ls = new List<int>();  //存放整列所有的值
+            foreach (DataRow dr in dt.Rows)
+            {
+                ls.Add(int.Parse(dr["Theta"].ToString()));
+            }
+            dt1 = DateTime.Now;
+            Console.WriteLine("取某一列:\t{0:#.0}ms", dt1.Subtract(dt0).TotalMilliseconds);
+            // 5.2 int[]
+            dt0 = DateTime.Now;
+            int[] col = new int[dt.Rows.Count];
             for (int i = 0; i < dt.Rows.Count; i++)
             {
+                col[i] = (int.Parse(dt.Rows[i]["Theta"].ToString()));
             }
+            dt1 = DateTime.Now;
+            Console.WriteLine("取某一列:\t{0:#.0}ms", dt1.Subtract(dt0).TotalMilliseconds);
+            
+            // ------------------- 6.删除某一列 -------------------
+            dt.Columns.Remove("Id");
+            dt.Columns.RemoveAt(2);
         }
         //导入CSV文件
         public static DataTable Csv2DataTable(string fileName)
