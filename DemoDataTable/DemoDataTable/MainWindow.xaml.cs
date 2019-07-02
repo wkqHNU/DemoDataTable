@@ -122,10 +122,10 @@ namespace DemoDataTable
             // ------------------- 5.取某一列 -------------------
             // 5.1 List
             dt0 = DateTime.Now;
-            List<int> ls = new List<int>();  //存放整列所有的值
+            List<int> colTheta = new List<int>();  //存放整列所有的值
             foreach (DataRow dr in dt.Rows)
             {
-                ls.Add(int.Parse(dr["Theta"].ToString()));
+                colTheta.Add(int.Parse(dr["Theta"].ToString()));
             }
             dt1 = DateTime.Now;
             Console.WriteLine("取某一列:\t{0:#.0}ms", dt1.Subtract(dt0).TotalMilliseconds);
